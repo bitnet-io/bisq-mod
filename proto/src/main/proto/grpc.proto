@@ -1,0 +1,822 @@
+/*
+ * This file is part of Bisq.
+ *
+ * Bisq is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+syntax = "proto3";
+package io.bisq.protobuffer;
+import "pb.proto";
+option java_package = "bisq.proto.grpc";
+option java_multiple_files = true;
+
+/*
+* DisputeAgents service is provided for development, and can only be used when running in regtest mode.
+*/
+service DisputeAgents {
+    // Register regtest / dev mode dispute agents.  Does not work if running on mainnet.
+    rpc RegisterDisputeAgent (RegisterDisputeAgentRequest) returns (RegisterDisputeAgentReply) {
+    }
+}
+
+/*
+* Register a dispute agent using a registration key.
+*/
+message RegisterDisputeAgentRequest {
+    string disputeAgentType = 1;
+    string registrationKey = 2;
+}
+
+message RegisterDisputeAgentReply {
+}
+
+
+/*
+* CLI command help service.
+*/
+service Help {
+    // Returns CLI command help in man page format.
+    rpc GetMethodHelp (GetMethodHelpRequest) returns (GetMethodHelpReply) {
+    }
+}
+
+message GetMethodHelpRequest {
+    string methodName = 1;
+}
+
+message GetMethodHelpReply {
+    string methodHelp = 1;
+}
+
+
+/*
+* Offers service provides rpc methods for creating, editing, listing, and cancelling Bisq offers.
+*/
+service Offers {
+    // Get offer category, one of  FIAT, ALTCOIN, or BSQ_SWAP.
+    rpc GetOfferCategory (GetOfferCategoryRequest) returns (GetOfferCategoryReply) {
+    }
+    // Get available BSQ swap offer with offer-id.
+    rpc GetBsqSwapOffer (GetOfferRequest) returns (GetBsqSwapOfferReply) {
+    }
+    // Get version 1 protocol offer with offer-id.
+    rpc GetOffer (GetOfferRequest) returns (GetOfferReply) {
+    }
+    // Get my BSQ swap offer with offer-id.
+    rpc GetMyBsqSwapOffer (GetMyOfferRequest) returns (GetMyBsqSwapOfferReply) {
+    }
+    // Get my open version 1 protocol offer with offer-id.  Deprecated since 27-Dec-2021 (v1.8.0).
+    rpc GetMyOffer (GetMyOfferRequest) returns (GetMyOfferReply) {
+    }
+    // Get available BSQ swap offers with direction BUY or SELL.
+    rpc GetBsqSwapOffers (GetBsqSwapOffersRequest) returns (GetBsqSwapOffersReply) {
+    }
+    // Get available version 1 protocol offers with direction BUY or SELL.
+    rpc GetOffers (GetOffersRequest) returns (GetOffersReply) {
+    }
+    // Get my BSQ swap offers with direction BUY or SELL.
+    rpc GetMyBsqSwapOffers (GetBsqSwapOffersRequest) returns (GetMyBsqSwapOffersReply) {
+    }
+    // Get my open version 1 protocol offers with direction BUY or SELL.
+    rpc GetMyOffers (GetMyOffersRequest) returns (GetMyOffersReply) {
+    }
+    // Create a BSQ swap offer.
+    rpc CreateBsqSwapOffer (CreateBsqSwapOfferRequest) returns (CreateBsqSwapOfferReply) {
+    }
+    // Create a version 1 protocol offer.
+    rpc CreateOffer (CreateOfferRequest) returns (CreateOfferReply) {
+    }
+    // Edit an open offer.
+    rpc EditOffer (EditOfferRequest) returns (EditOfferReply) {
+    }
+    // Cancel (remove) an open offer.
+    rpc CancelOffer (CancelOfferRequest) returns (CancelOfferReply) {
+    }
+}
+
+message GetOfferCategoryRequest {
+    string id = 1;
+    bool isMyOffer = 2;
+}
+
+message GetOfferCategoryReply {
+    enum OfferCategory {
+        UNKNOWN = 0;
+        FIAT = 1;
+        ALTCOIN = 2;
+        BSQ_SWAP = 3;
+    }
+    OfferCategory offerCategory = 1;
+}
+
+message GetBsqSwapOfferReply {
+    OfferInfo bsqSwapOffer = 1;
+}
+
+message GetOfferRequest {
+    string id = 1;
+}
+
+message GetOfferReply {
+    OfferInfo offer = 1;
+}
+
+message GetMyBsqSwapOfferReply {
+    OfferInfo bsqSwapOffer = 1;
+}
+
+// @Deprecated since 27-Dec-2021 (v1.8.0)
+message GetMyOfferRequest {
+    string id = 1;
+}
+
+// @Deprecated since 27-Dec-2021 (v1.8.0)
+message GetMyOfferReply {
+    OfferInfo offer = 1;
+}
+
+message GetOffersRequest {
+    string direction = 1;
+    string currencyCode = 2;
+}
+
+message GetOffersReply {
+    repeated OfferInfo offers = 1;
+}
+
+message GetBsqSwapOffersRequest {
+    string direction = 1;
+}
+
+message GetBsqSwapOffersReply {
+    repeated OfferInfo bsqSwapOffers = 1;
+}
+
+message GetMyOffersRequest {
+    string direction = 1;
+    string currencyCode = 2;
+}
+
+message GetMyOffersReply {
+    repeated OfferInfo offers = 1;
+}
+
+message GetMyBsqSwapOffersReply {
+    repeated OfferInfo bsqSwapOffers = 1;
+}
+
+message CreateBsqSwapOfferRequest {
+    string direction = 1;
+    uint64 amount = 2;
+    uint64 minAmount = 3;
+    string price = 4;
+}
+
+message CreateBsqSwapOfferReply {
+    OfferInfo bsqSwapOffer = 1;
+}
+
+message CreateOfferRequest {
+    string currencyCode = 1;
+    string direction = 2;
+    string price = 3;
+    bool useMarketBasedPrice = 4;
+    double marketPriceMargin = 5;
+    uint64 amount = 6;
+    uint64 minAmount = 7;
+    double buyerSecurityDeposit = 8;
+    uint64 triggerPrice = 9;
+    string paymentAccountId = 10;
+    string makerFeeCurrencyCode = 11;
+}
+
+message CreateOfferReply {
+    OfferInfo offer = 1;
+}
+
+message EditOfferRequest {
+    string id = 1;
+    string price = 2;
+    bool useMarketBasedPrice = 3;
+    double marketPriceMargin = 4;
+    uint64 triggerPrice = 5;
+    // Send a signed int, not a bool (with default=false).
+    //      -1 = do not change activation state
+    //      0 = disable
+    //      1 = enable
+    sint32 enable = 6;
+    // The EditType constricts what offer details can be modified and simplifies param validation.
+    enum EditType {
+         ACTIVATION_STATE_ONLY = 0;
+         FIXED_PRICE_ONLY = 1;
+         FIXED_PRICE_AND_ACTIVATION_STATE = 2;
+         MKT_PRICE_MARGIN_ONLY = 3;
+         MKT_PRICE_MARGIN_AND_ACTIVATION_STATE = 4;
+         TRIGGER_PRICE_ONLY = 5;
+         TRIGGER_PRICE_AND_ACTIVATION_STATE = 6;
+         MKT_PRICE_MARGIN_AND_TRIGGER_PRICE = 7;
+         MKT_PRICE_MARGIN_AND_TRIGGER_PRICE_AND_ACTIVATION_STATE = 8;
+    }
+    EditType editType = 7;
+}
+
+message EditOfferReply {
+}
+
+message CancelOfferRequest {
+    string id = 1;
+}
+
+message CancelOfferReply {
+}
+
+message OfferInfo {
+    string id = 1;
+    string direction = 2;
+    uint64 price = 3;
+    bool useMarketBasedPrice = 4;
+    double marketPriceMargin = 5;
+    uint64 amount = 6;
+    uint64 minAmount = 7;
+    uint64 volume = 8;
+    uint64 minVolume = 9;
+    uint64 buyerSecurityDeposit = 10;
+    uint64 triggerPrice = 11;
+    bool isCurrencyForMakerFeeBtc = 12;
+    string paymentAccountId = 13;
+    string paymentMethodId = 14;
+    string paymentMethodShortName = 15;
+    string baseCurrencyCode = 16;
+    string counterCurrencyCode = 17;
+    uint64 date = 18;
+    string state = 19;
+    uint64 sellerSecurityDeposit = 20;
+    string offerFeePaymentTxId = 21;
+    uint64 txFee = 22;
+    uint64 makerFee = 23;
+    bool isActivated = 24;
+    bool isMyOffer = 25;
+    bool isMyPendingOffer = 26;
+    bool isBsqSwapOffer = 27;
+    string ownerNodeAddress = 28;
+    string pubKeyRing = 29;
+    string versionNr = 30;
+    int32 protocolVersion = 31;
+}
+
+message AvailabilityResultWithDescription {
+    AvailabilityResult availabilityResult = 1;
+    string description = 2;
+}
+
+/*
+* PaymentAccounts service provides rpc methods for creating fiat and crypto currency payment accounts.
+*/
+service PaymentAccounts {
+    // Create a fiat payment account, providing details in a json form.
+    rpc CreatePaymentAccount (CreatePaymentAccountRequest) returns (CreatePaymentAccountReply) {
+    }
+    // Get list of all saved fiat payment accounts.
+    rpc GetPaymentAccounts (GetPaymentAccountsRequest) returns (GetPaymentAccountsReply) {
+    }
+    // Get list of all supported Bisq payment methods.
+    rpc GetPaymentMethods (GetPaymentMethodsRequest) returns (GetPaymentMethodsReply) {
+    }
+    // Get a json template file for a supported Bisq payment method.
+    rpc GetPaymentAccountForm (GetPaymentAccountFormRequest) returns (GetPaymentAccountFormReply) {
+    }
+    // Create a crypto currency (altcoin) payment account.
+    rpc CreateCryptoCurrencyPaymentAccount (CreateCryptoCurrencyPaymentAccountRequest) returns (CreateCryptoCurrencyPaymentAccountReply) {
+    }
+    // Get list of all supported Bisq crypto currency (altcoin) payment methods.
+    rpc GetCryptoCurrencyPaymentMethods (GetCryptoCurrencyPaymentMethodsRequest) returns (GetCryptoCurrencyPaymentMethodsReply) {
+    }
+}
+
+message CreatePaymentAccountRequest {
+    string paymentAccountForm = 1;
+}
+
+message CreatePaymentAccountReply {
+    PaymentAccount paymentAccount = 1;
+}
+
+message GetPaymentAccountsRequest {
+}
+
+message GetPaymentAccountsReply {
+    repeated PaymentAccount paymentAccounts = 1;
+}
+
+message GetPaymentMethodsRequest {
+}
+
+message GetPaymentMethodsReply {
+    repeated PaymentMethod paymentMethods = 1;
+}
+
+message GetPaymentAccountFormRequest {
+    string paymentMethodId = 1;
+}
+
+message GetPaymentAccountFormReply {
+    string paymentAccountFormJson = 1;
+}
+
+message CreateCryptoCurrencyPaymentAccountRequest {
+    string accountName = 1;
+    string currencyCode = 2;
+    string address = 3;
+    bool tradeInstant = 4;
+}
+
+message CreateCryptoCurrencyPaymentAccountReply {
+    PaymentAccount paymentAccount = 1;
+}
+
+message GetCryptoCurrencyPaymentMethodsRequest {
+}
+
+message GetCryptoCurrencyPaymentMethodsReply {
+    repeated PaymentMethod paymentMethods = 1;
+}
+
+/*
+* Price service comment.
+*/
+service Price {
+    // Get current market price for a crypto currency.
+    rpc GetMarketPrice (MarketPriceRequest) returns (MarketPriceReply) {
+    }
+}
+
+message MarketPriceRequest {
+    string currencyCode = 1;
+}
+
+message MarketPriceReply {
+    double price = 1;
+}
+
+/*
+* GetTradeStatistics service is not implemented.  It's stub will be remove from the gRPC daemon.
+*/
+service GetTradeStatistics {
+    // Not implemented.
+    rpc GetTradeStatistics (GetTradeStatisticsRequest) returns (GetTradeStatisticsReply) {
+    }
+}
+
+message GetTradeStatisticsRequest {
+}
+
+message GetTradeStatisticsReply {
+    repeated TradeStatistics3 TradeStatistics = 1;
+}
+
+/*
+* ShutdownServer service comment.
+*/
+service ShutdownServer {
+    // Shut down a local Bisq daemon.
+    rpc Stop (StopRequest) returns (StopReply) {
+    }
+}
+
+message StopRequest {
+}
+
+message StopReply {
+}
+
+/*
+* Trades service provides rpc methods for taking, executing, and listing trades.
+*/
+service Trades {
+    // Get an open trade with a trade-id.
+    rpc GetTrade (GetTradeRequest) returns (GetTradeReply) {
+    }
+    // Get all open or historical trades.
+    rpc GetTrades (GetTradesRequest) returns (GetTradesReply) {
+    }
+    // Take an open offer.
+    rpc TakeOffer (TakeOfferRequest) returns (TakeOfferReply) {
+    }
+    // Send a 'payment started' message to a trading peer (seller).
+    rpc ConfirmPaymentStarted (ConfirmPaymentStartedRequest) returns (ConfirmPaymentStartedReply) {
+    }
+    // Send a 'payment received' message to a trading peer (buyer).
+    rpc ConfirmPaymentReceived (ConfirmPaymentReceivedRequest) returns (ConfirmPaymentReceivedReply) {
+    }
+    // Close a completed trade (moves it to trade history).
+    rpc CloseTrade (CloseTradeRequest) returns (CloseTradeReply) {
+    }
+    // Fail an open trade.
+    rpc FailTrade (FailTradeRequest) returns (FailTradeReply) {
+    }
+    // Unfail a failed trade.
+    rpc UnFailTrade (UnFailTradeRequest) returns (UnFailTradeReply) {
+    }
+    // Withdraw trade proceeds to an external bitcoin wallet address.
+    rpc WithdrawFunds (WithdrawFundsRequest) returns (WithdrawFundsReply) {
+    }
+}
+
+message TakeOfferRequest {
+    string offerId = 1;
+    string paymentAccountId = 2;
+    string takerFeeCurrencyCode = 3;
+}
+
+message TakeOfferReply {
+    TradeInfo trade = 1;
+    AvailabilityResultWithDescription failureReason = 2;
+}
+
+message ConfirmPaymentStartedRequest {
+    string tradeId = 1;
+}
+
+message ConfirmPaymentStartedReply {
+}
+
+message ConfirmPaymentReceivedRequest {
+    string tradeId = 1;
+}
+
+message ConfirmPaymentReceivedReply {
+}
+
+message GetTradeRequest {
+    string tradeId = 1;
+}
+
+message GetTradeReply {
+    TradeInfo trade = 1;
+}
+
+message GetTradesRequest {
+    enum Category {
+        OPEN = 0;
+        CLOSED = 1;
+        FAILED = 2;
+    }
+    Category category = 1;
+}
+
+message GetTradesReply {
+    repeated TradeInfo trades = 1;
+}
+
+message CloseTradeRequest {
+    string tradeId = 1;
+}
+
+message CloseTradeReply {
+}
+
+message FailTradeRequest {
+    string tradeId = 1;
+}
+
+message FailTradeReply {
+}
+
+message UnFailTradeRequest {
+    string tradeId = 1;
+}
+
+message UnFailTradeReply {
+}
+
+message WithdrawFundsRequest {
+    string tradeId = 1;
+    string address = 2;
+    string memo = 3;
+}
+
+message WithdrawFundsReply {
+}
+
+message TradeInfo {
+    OfferInfo offer = 1;
+    string tradeId = 2;
+    string shortId = 3;
+    uint64 date = 4;
+    string role = 5;
+    bool isCurrencyForTakerFeeBtc = 6;
+    uint64 txFeeAsLong = 7;
+    uint64 takerFeeAsLong = 8;
+    string takerFeeTxId = 9;
+    string depositTxId = 10;
+    string payoutTxId = 11;
+    uint64 tradeAmountAsLong = 12;
+    uint64 tradePrice = 13;
+    string tradingPeerNodeAddress = 14;
+    string state = 15;
+    string phase = 16;
+    string tradePeriodState = 17;
+    bool isDepositPublished = 18;
+    bool isDepositConfirmed = 19;
+    bool isFiatSent = 20;
+    bool isFiatReceived = 21;
+    bool isPayoutPublished = 22;
+    bool isWithdrawn = 23;
+    string contractAsJson = 24;
+    ContractInfo contract = 25;
+    uint64 tradeVolume = 26;
+    BsqSwapTradeInfo bsqSwapTradeInfo = 28;
+    // Needed by open/closed/failed trade list items.
+    string closingStatus = 29;
+}
+
+message ContractInfo {
+    string buyerNodeAddress = 1;
+    string sellerNodeAddress = 2;
+    string mediatorNodeAddress = 3;
+    string refundAgentNodeAddress = 4;
+    bool isBuyerMakerAndSellerTaker = 5;
+    string makerAccountId = 6;
+    string takerAccountId = 7;
+    PaymentAccountPayloadInfo makerPaymentAccountPayload = 8;
+    PaymentAccountPayloadInfo takerPaymentAccountPayload = 9;
+    string makerPayoutAddressString = 10;
+    string takerPayoutAddressString = 11;
+    uint64 lockTime = 12;
+}
+
+/*
+* BSQ Swap protocol specific fields not common to Bisq v1 trade protocol fields.
+*/
+message BsqSwapTradeInfo {
+    string txId = 1;
+    uint64 bsqTradeAmount = 2;
+    uint64 btcTradeAmount = 3;
+    uint64 bsqMakerTradeFee = 4;
+    uint64 bsqTakerTradeFee = 5;
+    uint64 txFeePerVbyte = 6;
+    string makerBsqAddress = 7;
+    string makerBtcAddress = 8;
+    string takerBsqAddress = 9;
+    string takerBtcAddress = 10;
+    uint64 numConfirmations = 11;
+    string errorMessage = 12;
+    uint64 payout = 13;
+    uint64 swapPeerPayout = 14;
+}
+
+message PaymentAccountPayloadInfo {
+    string id = 1;
+    string paymentMethodId = 2;
+    string address = 3;
+}
+
+message TxFeeRateInfo {
+    bool useCustomTxFeeRate = 1;
+    uint64 customTxFeeRate = 2;
+    uint64 feeServiceRate = 3;
+    uint64 lastFeeServiceRequestTs = 4;
+    uint64 minFeeServiceRate = 5;
+}
+
+message TxInfo {
+    string txId = 1;
+    uint64 inputSum = 2;
+    uint64 outputSum = 3;
+    uint64 fee = 4;
+    int32 size = 5;
+    bool isPending = 6;
+    string memo = 7;
+}
+
+/*
+* Wallets service provides rpc methods for basic wallet operations such as checking balances,
+* sending BTC or BSQ to external wallets, checking transaction fee rates, setting or unsetting
+* an encryption password on a a wallet, and unlocking / locking an encrypted wallet.
+*/
+service Wallets {
+    // Get current BSQ and BTC balances.
+    rpc GetBalances (GetBalancesRequest) returns (GetBalancesReply) {
+    }
+    // Get BTC balance for a wallet address.
+    rpc GetAddressBalance (GetAddressBalanceRequest) returns (GetAddressBalanceReply) {
+    }
+    // Get an unused BSQ wallet address.
+    rpc GetUnusedBsqAddress (GetUnusedBsqAddressRequest) returns (GetUnusedBsqAddressReply) {
+    }
+    // Send BSQ to an address.
+    rpc SendBsq (SendBsqRequest) returns (SendBsqReply) {
+    }
+    // Send BSQ to an address.
+    rpc SendBtc (SendBtcRequest) returns (SendBtcReply) {
+    }
+    // Verify a specific amount of BSQ was received by a BSQ wallet address.  (TODO change method name?)
+    rpc VerifyBsqSentToAddress (VerifyBsqSentToAddressRequest) returns (VerifyBsqSentToAddressReply) {
+    }
+    // Get most recently available BTC network tx fee, or custom fee rate if set.
+    rpc GetTxFeeRate (GetTxFeeRateRequest) returns (GetTxFeeRateReply) {
+    }
+    // Set custom tx fee rate.
+    rpc SetTxFeeRatePreference (SetTxFeeRatePreferenceRequest) returns (SetTxFeeRatePreferenceReply) {
+    }
+    // Remove custom tx fee rate, revert to using BTC network tx fee rate.
+    rpc UnsetTxFeeRatePreference (UnsetTxFeeRatePreferenceRequest) returns (UnsetTxFeeRatePreferenceReply) {
+    }
+    // Get a BTC tx with a transaction-id.
+    rpc GetTransaction (GetTransactionRequest) returns (GetTransactionReply) {
+    }
+    // Get all BTC receiving address in the wallet.
+    rpc GetFundingAddresses (GetFundingAddressesRequest) returns (GetFundingAddressesReply) {
+    }
+    // Set wallet encryption password.
+    rpc SetWalletPassword (SetWalletPasswordRequest) returns (SetWalletPasswordReply) {
+    }
+    // Remove wallet encryption password.
+    rpc RemoveWalletPassword (RemoveWalletPasswordRequest) returns (RemoveWalletPasswordReply) {
+    }
+    // Lock unlocked, encrypted wallet.
+    rpc LockWallet (LockWalletRequest) returns (LockWalletReply) {
+    }
+    // Unlock encrypted wallet before executing wallet sensitive methods:
+    // createoffer, takeoffer, getbalances, etc.
+    rpc UnlockWallet (UnlockWalletRequest) returns (UnlockWalletReply) {
+    }
+}
+
+message GetBalancesRequest {
+    string currencyCode = 1;
+}
+
+message GetBalancesReply {
+    BalancesInfo balances = 1;
+}
+
+message GetAddressBalanceRequest {
+    string address = 1;
+}
+
+message GetAddressBalanceReply {
+    AddressBalanceInfo addressBalanceInfo = 1;
+}
+
+message GetUnusedBsqAddressRequest {
+}
+
+message GetUnusedBsqAddressReply {
+     string address = 1;
+}
+
+message SendBsqRequest {
+    string address = 1;
+    string amount = 2;
+    string txFeeRate = 3;
+}
+
+message SendBsqReply {
+    TxInfo txInfo = 1;
+}
+
+message SendBtcRequest {
+    string address = 1;
+    string amount = 2;
+    string txFeeRate = 3;
+    string memo = 4;
+}
+
+message SendBtcReply {
+    TxInfo txInfo = 1;
+}
+
+message VerifyBsqSentToAddressRequest {
+    string address = 1;
+    string amount = 2;
+}
+
+message VerifyBsqSentToAddressReply {
+    bool isAmountReceived = 1;
+}
+
+message GetTxFeeRateRequest {
+}
+
+message GetTxFeeRateReply {
+    TxFeeRateInfo txFeeRateInfo = 1;
+}
+
+message SetTxFeeRatePreferenceRequest {
+    uint64 txFeeRatePreference = 1;
+}
+
+message SetTxFeeRatePreferenceReply {
+    TxFeeRateInfo txFeeRateInfo = 1;
+}
+
+message UnsetTxFeeRatePreferenceRequest {
+}
+
+message UnsetTxFeeRatePreferenceReply {
+    TxFeeRateInfo txFeeRateInfo = 1;
+}
+
+message GetTransactionRequest {
+    string txId = 1;
+}
+
+message GetTransactionReply {
+    TxInfo txInfo = 1;
+}
+
+message GetFundingAddressesRequest {
+}
+
+message GetFundingAddressesReply {
+    repeated AddressBalanceInfo addressBalanceInfo = 1;
+}
+
+message SetWalletPasswordRequest {
+    string password = 1;
+    string newPassword = 2;
+}
+
+message SetWalletPasswordReply {
+}
+
+message RemoveWalletPasswordRequest {
+    string password = 1;
+}
+
+message RemoveWalletPasswordReply {
+}
+
+message LockWalletRequest {
+}
+
+message LockWalletReply {
+}
+
+message UnlockWalletRequest {
+    string password = 1;
+    uint64 timeout = 2;
+}
+
+message UnlockWalletReply {
+}
+
+/* Field names are shortened for readability's sake, i.e.,
+* balancesInfo.getBtc().getAvailableBalance() is cleaner than
+* balancesInfo.getBtcBalanceInfo().getAvailableBalance().
+*/
+message BalancesInfo {
+    BsqBalanceInfo bsq = 1;
+    BtcBalanceInfo btc = 2;
+}
+
+message BsqBalanceInfo {
+    uint64 availableConfirmedBalance = 1;
+    uint64 unverifiedBalance = 2;
+    uint64 unconfirmedChangeBalance = 3;
+    uint64 lockedForVotingBalance = 4;
+    uint64 lockupBondsBalance = 5;
+    uint64 unlockingBondsBalance = 6;
+}
+
+message BtcBalanceInfo {
+    uint64 availableBalance = 1;
+    uint64 reservedBalance = 2;
+    uint64 totalAvailableBalance = 3;
+    uint64 lockedBalance = 4;
+}
+
+message AddressBalanceInfo {
+    string address = 1;
+    int64 balance = 2;
+    int64 numConfirmations = 3;
+    bool isAddressUnused = 4;
+}
+
+/*
+* GetVersion service provides the local Bisq daemon's version.
+*/
+service GetVersion {
+    // Get current Bisq version number.
+    rpc GetVersion (GetVersionRequest) returns (GetVersionReply) {
+    }
+}
+
+message GetVersionRequest {
+}
+
+message GetVersionReply {
+    string version = 1;
+}
